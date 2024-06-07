@@ -2,6 +2,7 @@ import { Body, Controller, Post } from "@nestjs/common"
 import { AuthService } from "./auth.service"
 import { AuthSignupDTO } from "./dtos/auth.signup.dto"
 import { AuthSignlnDTO } from "./dtos/auth.signln.dto"
+import { hash } from "bcrypt"
 
 @Controller("auth")
 export class AuthController {
@@ -9,11 +10,11 @@ export class AuthController {
 
     @Post("signup")
     signup(@Body() body : AuthSignupDTO){
-        return this.authService.signup()
+        return this.authService.signup(body)
     }
 
     @Post("signln")
     signln(@Body() body : AuthSignlnDTO){
-        return this.authService.signln()
+        return this.authService.signln(body)
     }
 }
