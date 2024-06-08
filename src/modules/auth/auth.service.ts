@@ -1,9 +1,10 @@
-import { Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { AuthSignupDTO } from "./dtos/auth.signup.dto";
 import { hash, compare } from "bcrypt"
 import { PrismaService } from "../prisma/prisma.service";
 import { AuthSignlnDTO } from "./dtos/auth.signln.dto";
 import { JwtService } from '@nestjs/jwt';
+import { jwtConstants } from "./auth.constants";
 
 
 
@@ -13,7 +14,7 @@ export class AuthService {
     constructor(
         private prismaService: PrismaService,
         private jwtService: JwtService
-    ) {}
+    ) { }
 
     async signup(data: AuthSignupDTO) {
 
@@ -42,10 +43,25 @@ export class AuthService {
 
         if (!passwordMatch) throw new NotFoundException("E-mail e/ou senhas incorretos");
 
-        const payload =  { sub: user.id, username: user.name };
+        const payload = { sub: user.id, username: user.name };
 
         const token = await this.jwtService.signAsync(payload)
 
         return { user, token }
+    }
+
+    verifyToken(token: string) {
+        
+        try {
+            const verifyToken = token.split(" ")[1]
+            const isValidToken = this.jwtService.verify(verifyToken, jwtConstants)
+            return isValidToken
+
+
+        } catch (error) {
+            throw new BadRequestException("Token inválido")
+        }
+
+        
     }
 }

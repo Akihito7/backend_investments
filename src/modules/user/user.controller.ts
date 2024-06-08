@@ -1,25 +1,31 @@
-import { Controller, Delete, Get, Param, Put, Req } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, Param, Put, Req, UseGuards } from "@nestjs/common";
 import { UserService } from "./user.service";
+import { AuthGuard } from "src/common/guards/auth.guard";
+import { UserUpdateDTO } from "./dtos/user.update.DTO";
 
 @Controller("user")
+@UseGuards(AuthGuard)
 export class UserController {
 
     constructor(private userService : UserService){}
 
-    @Get(":id")
-    getUser(@Param("id") id : string){
-        return this.userService.getUser()
+    @Get()
+    async getUser(@Req() req : any){
+        const userId = req.user.id
+        return this.userService.getUser(userId)
     }
 
-    @Put(":id/:name")
-    updateUser(@Param() params){
-        console.log(params)
-        return this.userService.updateUser()
+    @Put("")
+    async updateUser(@Req() req : any, @Body() body : UserUpdateDTO){
+        const userId = req.user.id
+        return this.userService.updateUser(userId, body)
     }
 
+    @HttpCode(204) 
     @Delete()
-    deleteUser(){
-        return this.userService.deleteUser()
+    async deleteUser(@Req() req : any){
+        const userId = req.user.id
+        return this.userService.deleteUser(userId)
     }
 
 
